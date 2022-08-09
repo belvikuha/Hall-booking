@@ -18,6 +18,8 @@ const Hall =sequelize.define("hall", {
     }
 });
 Hall.hasMany(Conference)
+
 Conference.belongsTo(Hall);
+
 
 export default Hall

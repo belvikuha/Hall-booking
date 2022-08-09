@@ -17,9 +17,16 @@ const AddConfForm =({userId, conf})=>{
     useEffect(()=>{
         
         if(conf){
-            setDate(new Date(conf.start))
+            var y=conf.start.getFullYear(),m=conf.start.getMonth(), d=conf.start.getDate(),
+             hS= conf.start.getHours(), mS = conf.start.getMinutes(), hE=conf.end.getHours(), mE =conf.end.getMinutes();
+            const dateStr = y + '-' + (m<10 ? `0${m}` : m ) + "-" + (d<10 ? `0${d}` : d) ;
+            const timeStartStr = (hS <10 ? `0${hS}`: hS)+':'+(mS <10 ? `0${mS}`: mS)
+            const timeEndStr = (hE <10 ? `0${hE}`: hE)+':'+(mE <10 ? `0${mE}`: mE)
+
+            setDate(dateStr)
+            setStart(timeStartStr)
+            setEnd(timeEndStr)
             setHall(conf.title);
-            // document.getElementById(`hallChoice${conf.title}`).setAttribute("checked", "checked");
         }
         getHallColors().then(res=>{setColors(res);setLoading(false);})
         
@@ -44,8 +51,14 @@ const AddConfForm =({userId, conf})=>{
     }
 
     const onSubmitForm=()=>{
-        // var de = date+" "+end;
-        // transformDate(de);
+      addConf({
+        dataEnd:date+" "+end+":00",
+        userId: userId,
+        hallId:hall,
+        dataBeg: date+" "+start+":00"
+      })
+    }
+    const onRedForm=()=>{
       addConf({
         dataEnd:date+" "+end+":00",
         userId: userId,
@@ -54,48 +67,31 @@ const AddConfForm =({userId, conf})=>{
       })
     }
 
-    const hallInputs = colors.map((hall, i) => {
-       
-        return (
-            <div className="inputGroup" onClick={()=>onHallsChange(hall, i+1)}   key={i}>
-            <input 
-            name="hall" 
-            id = {`hallChoice${i+1}`}
-            type="radio"
-            value={i+1}
-           
-            // key={i}
-            />
-            <label htmlFor={'hallChoice'+hall}>{i+1}</label>
-            </div>
-            
-        )})
-
-        // const hallInputs = useMemo(()=>{
-        //     var mass
-        //     getHallColors().then(res=>{
+     function renderHallInputs(){
+         return colors.map((h, i) => {
+            var checked = false;
+            if(hall === i+1){
+                checked = true
+            }
+             return (
+                 <div className="inputGroup" onClick={()=>onHallsChange(h, i+1)}   key={i}>
+                 <input 
+                 name="hall" 
+                 id = {`hallChoice${i+1}`}
+                 type="radio"
+                 value={i+1}
+                 checked={checked}
                 
-        //         setColors(res)
-        //     mass =  colors.map((hall, i) => {
-        //         return (
-        //             <div className="inputGroup" onClick={()=>onHallsChange(hall, i+1)}   key={i}>
-        //             <input 
-        //             name="hall" 
-        //             id = {'hallChoice'+hall}
-        //             type="radio"
-        //             value={i+1}
-                
-        //             // key={i}
-        //             />
-        //             <label htmlFor={'hallChoice'+hall}>{i+1}</label>
-        //             </div>
-                    
-        //         )})
-        //     });
-        //     return mass
-        // }, []
-        // )
-     // console.log("я вызываюсь")
+                 // key={i}  
+                 />
+                 <label htmlFor={'hallChoice'+h}>{i+1}</label>
+                 </div>
+                 
+             )})
+         }
+ 
+     const halls = renderHallInputs()
+      
 
     console.log('render')
     return(
@@ -107,7 +103,7 @@ const AddConfForm =({userId, conf})=>{
                     }}>
                     <h2>Зали</h2>
                     <div className="checkHall">
-                        {hallInputs}
+                        {halls}
                     </div>
                     <div className="datatime">
                         <h2>Дата</h2>
@@ -124,16 +120,20 @@ const AddConfForm =({userId, conf})=>{
                         <input type="time" className="time-end" name="time"
                             value={end} 
                             onChange={(e)=>setEnd(e.target.value.toLocaleString())}/>
-                    </div>
-                    
-                    <button onClick={onSubmitForm}>Зарезервувати</button>
-                    
+                    </div>   
+                   {!conf ? <button  onClick={onSubmitForm}>Зарезервувати</button> :
+                     <button  onClick={onRedForm}>Редагувати</button>
+                    }
                 </form>
          }
         </div>
     )
 }
-
+// const myBtn =(onSubmit, nameD)=>{
+//     return(
+//         <button onClick={onSubmit}>{nameD}</button>
+//     )
+// }
 
 
 export default AddConfForm

@@ -78,7 +78,7 @@ class ConferenceController {
     
 
     async addConference(req, res){
-        try{
+        // try{
             // const errors = validationResult(req)
             // if(!errors.isEmpty()){
             //     return res.status(400).json({message: "Ошибка заполнения формы", errors})
@@ -87,23 +87,33 @@ class ConferenceController {
           console.log(dataBeg);  
           console.log(dataEnd);  
          await Conferense
-            .findOne({where: {dataBeg : {[Op.between] : [(dataEnd) , (dataBeg) ]}, hallId: hallId}, raw: true})
+            .findOne({where: {[Op.or]:[
+              { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
+              {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
+              ],
+              hallId: hallId },
+              raw: true})
             .then( place =>{
               console.log(place)
               if(place){
+                // res.status(400).json({message: "На это время зал занят"})
+                // // res.status(401)
+                // return 
                 throw new Error( "На это время зал занят")
               }
-              return Conferense.create({dataEnd,
+              else {
+                  Conferense.create({dataEnd,
                   userId,
                   hallId,
-                  dataBeg})
-              })
-            .then( res.json({message: "Успіх"}))
-            .catch(e=> {console.log(e); res.status(400).json({message: e}) });  
-        }
-        catch(e){
-            console.log(e);
-        }
+                  dataBeg}).then(res.json({message: "Успіх"}))
+              } 
+              }).catch(e=> { res.status(400).json({message: e.message}); console.log(e.message); })
+            
+     
+        // }
+        // catch(e){
+        //     console.log(e);
+        // }
         
       }
 

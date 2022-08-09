@@ -78,7 +78,7 @@ async function getAllConfs(){
     async function addConf(conf){
         const {dataEnd,userId,hallId,dataBeg} = conf;
         try {
-            const response = await axios.post('http://localhost:8000/user/addConf',
+             await axios.post('http://localhost:8000/user/addConf',
                     {   dataEnd,
                         userId,
                         hallId,
@@ -86,11 +86,12 @@ async function getAllConfs(){
                     },
                 {headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}})
                 .then(res=>{
-                    if(res.status!==200){ console.log(res) }
+                    // console.log(res)
+                    if(res.status===400){ throw new Error(res.data.message)}
                     console.log("успех")
                 },
                 error=>alert(error.response.data.message)
-                ).catch(e=>console.log(e))
+                ).catch(e=>alert(e.message))
            
         } catch (e) {
             alert(e)
