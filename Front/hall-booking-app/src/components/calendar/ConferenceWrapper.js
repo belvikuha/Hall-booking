@@ -26,8 +26,6 @@ const EventWrapper = ({ event, children  }) => {
   const minuteStop = moment(event.end).minute();
   
   const startPlus = minuteStart>=30 ? 2 : 1;
-  // var gridRowPlus = minuteStart>=30 ? 0 : 2;
-  // if(minuteStart<30 && minuteStop<30){gridRowPlus -= 1;}
   var gridRowPlus = 0;
   if(minuteStart>=30 && minuteStop<30)gridRowPlus = -1
   if(minuteStop>=30 && minuteStart<30 )gridRowPlus = 1

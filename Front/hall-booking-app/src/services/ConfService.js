@@ -1,6 +1,9 @@
 import axios from 'axios'
 import moment from 'moment'
 
+import {useDispatch} from 'react-redux'
+import { validate } from '../reducers/userReducer'
+
 const ConfService= ()=>{
 
 //     async function getAllConfs(){
@@ -12,6 +15,8 @@ const ConfService= ()=>{
 //                alert(e.response.data.message)
 //            }
 //    }
+
+const dispatch = useDispatch()
 async function getAllConfs(){
     const conferenses= axios.get('http://localhost:8000/user/allconf',
                 {headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}})
@@ -89,6 +94,7 @@ async function getAllConfs(){
                     // console.log(res)
                     if(res.status===400){ throw new Error(res.data.message)}
                     console.log("успех")
+                    dispatch(validate())
                 },
                 error=>alert(error.response.data.message)
                 ).catch(e=>alert(e.message))

@@ -8,9 +8,6 @@ import EventWrapper from "./ConferenceWrapper.js";
 import ConfService from "../../services/ConfService.js";
 
 
-// import './wrapper.css';
-
-
 moment.locale('uk');
 const localizer = momentLocalizer(moment)
 
