@@ -1,6 +1,7 @@
 import './App.css';
 
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+
 import {useEffect} from 'react'
 
 import {useDispatch, useSelector} from "react-redux";
@@ -22,6 +23,7 @@ function App() {
   const isAuth = useSelector(state => state.user.isAuth)
   const name = useSelector(state => state.user.currentUser.userName)
   const id = useSelector(state => state.user.currentUser.id)
+  const isValid = useSelector(state => state.user.isValid)
   const dispatch = useDispatch()
 
   const{auth} = UserActions()
@@ -39,8 +41,15 @@ function App() {
             <main>     
                     <Routes>{/* что бы все маршруты не были на одной странице  */}
                         {!isAuth ? <Route path="/" element={<LoginPage/>}/> :<Route path="/" element={<CalendarWrapper/>}/>}
-                        <Route path="/addC" element={<AddConfForm userId={id}/>}/>
-                      
+                       
+                        {/* <Route path="/addC" element={<AddConfForm userId={id}/>}/> */}
+                        <Route path="/addC" element={ (
+                            isValid && isAuth ? (
+                              <Navigate to="/" replace />
+                            ) : (
+                              <AddConfForm userId={id}/>
+                            )
+                          )}/>
                       
                         <Route path="*" element={<Page404/>}/>
                     </Routes>  
@@ -53,3 +62,4 @@ function App() {
 }
 
 export default App;
+

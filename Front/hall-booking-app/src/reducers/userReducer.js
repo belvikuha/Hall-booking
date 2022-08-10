@@ -1,9 +1,12 @@
 const SET_USER = "SET_USER"
 const LOGOUT = "LOGOUT"
+const VALIDATE = "VALIDATE"
+
 
 const defaultState = {
     currentUser: {},
-    isAuth: false
+    isAuth: false,
+    isValid: false
 }
 
 export default function userReducer(state = defaultState, action) {
@@ -24,9 +27,17 @@ export default function userReducer(state = defaultState, action) {
                 currentUser: {},
                 isAuth: false
             }
+
+        case VALIDATE:
+            return{
+                ...state,
+                isValid: !state.isValid
+            }
+        
         default:
             return state
     }
 }
 export const setUser = user => ({type: SET_USER, payload: user})
 export const logout = () => ({type: LOGOUT})
+export const validate = () =>({type: VALIDATE})

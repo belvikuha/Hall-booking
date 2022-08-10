@@ -3,6 +3,10 @@ import './addConfForm.scss'
 import ConfService from "../../services/ConfService"
 // import {useDispatch} from 'react-redux'
 
+import {useDispatch} from 'react-redux'
+import { validate } from "../../reducers/userReducer"
+
+
 const AddConfForm =({userId, conf})=>{
     const {addConf, getHallColors, updateConf} = ConfService()
 
@@ -13,6 +17,7 @@ const AddConfForm =({userId, conf})=>{
     const [hall, setHall] = useState()
     const[loading, setLoading] = useState(true)
     // const [hallList, setHallList] =useState()
+    const dispatch = useDispatch()
 
     useEffect(()=>{
         
@@ -29,7 +34,9 @@ const AddConfForm =({userId, conf})=>{
             setHall(conf.title);
         }
         getHallColors().then(res=>{setColors(res);setLoading(false);})
-        
+        // return () => {
+        //     dispatch(validate())
+        //  }
     },[])
 
 
@@ -56,7 +63,9 @@ const AddConfForm =({userId, conf})=>{
         userId: userId,
         hallId:hall,
         dataBeg: date+" "+start+":00"
-      })
+      }).then(
+        dispatch(validate())
+      )
     }
     const onRedForm=(userId)=>{
         updateConf(userId,{
