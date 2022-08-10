@@ -109,9 +109,30 @@ async function getAllConfs(){
             alert(error);
         }
     }
+    // update-conference/:confid
+    async function updateConf(confid, conf){
+        try {
+            const {dataEnd,userId,hallId,dataBeg} = conf;
+            await axios.put(`http://localhost:8000/user/update-conference/${confid}`, 
+            {   dataEnd,
+                userId,
+                hallId,
+                dataBeg
+            },
+            {headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}})
+            .then(res=>{
+                 if(res.status!==200){ throw new Error(res.data.message)}
+                console.log("успех")
+            },
+            error=>alert(error.response.data.message)
+            ).catch(e=>alert(e.message))
+        } catch (error) {
+            alert(error);
+        }
+    }
 
 
-    return{addConf, transformDate, getAllConfs, getHallColors}
+    return{addConf, transformDate, getAllConfs, getHallColors, updateConf}
 }
 
 export default ConfService

@@ -17,9 +17,9 @@ const Edits =sequelize.define("Edits", {
     },  
 });
 
-User.hasMany(Edits)
-Edits.belongsTo(User)
-Hall.hasMany(Edits)
-Edits.belongsTo(Hall)
+
+
+
+
 
 export default Edits

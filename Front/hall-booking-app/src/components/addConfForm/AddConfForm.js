@@ -4,7 +4,7 @@ import ConfService from "../../services/ConfService"
 // import {useDispatch} from 'react-redux'
 
 const AddConfForm =({userId, conf})=>{
-    const {addConf, getHallColors} = ConfService()
+    const {addConf, getHallColors, updateConf} = ConfService()
 
     const[colors, setColors] = useState([])
     const [date, setDate] = useState()
@@ -17,7 +17,7 @@ const AddConfForm =({userId, conf})=>{
     useEffect(()=>{
         
         if(conf){
-            var y=conf.start.getFullYear(),m=conf.start.getMonth(), d=conf.start.getDate(),
+            var y=conf.start.getFullYear(),m=conf.start.getMonth()+1, d=conf.start.getDate(),
              hS= conf.start.getHours(), mS = conf.start.getMinutes(), hE=conf.end.getHours(), mE =conf.end.getMinutes();
             const dateStr = y + '-' + (m<10 ? `0${m}` : m ) + "-" + (d<10 ? `0${d}` : d) ;
             const timeStartStr = (hS <10 ? `0${hS}`: hS)+':'+(mS <10 ? `0${mS}`: mS)
@@ -58,8 +58,8 @@ const AddConfForm =({userId, conf})=>{
         dataBeg: date+" "+start+":00"
       })
     }
-    const onRedForm=()=>{
-      addConf({
+    const onRedForm=(userId)=>{
+        updateConf(userId,{
         dataEnd:date+" "+end+":00",
         userId: userId,
         hallId:hall,
@@ -122,7 +122,7 @@ const AddConfForm =({userId, conf})=>{
                             onChange={(e)=>setEnd(e.target.value.toLocaleString())}/>
                     </div>   
                    {!conf ? <button  onClick={onSubmitForm}>Зарезервувати</button> :
-                     <button  onClick={onRedForm}>Редагувати</button>
+                     <button  onClick={()=>onRedForm(conf.id)}>Редагувати</button>
                     }
                 </form>
          }

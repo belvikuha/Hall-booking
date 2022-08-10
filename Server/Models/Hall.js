@@ -4,6 +4,7 @@ import Sequelize from "sequelize";
 import sequelize from "../context.js"
 
 import Conference from "./Conference.js";
+import Edits from "./Edits.js";
 
 const Hall =sequelize.define("hall", {
     id:{

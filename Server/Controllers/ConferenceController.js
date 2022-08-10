@@ -1,5 +1,6 @@
 import Conferense from "../Models/Conference.js"
 import Hall from "../Models/Hall.js";
+import Edits from "../Models/Edits.js";
 import {validationResult} from 'express-validator'
 import {Op} from "sequelize";
 
@@ -7,16 +8,16 @@ import {Op} from "sequelize";
 import jwt from 'jsonwebtoken'
 import {secretKey} from '../config.js'
 
-function tosqld2(inputDate){
-  const d = new Date(inputDate)
-  return new Date(
-    d.getFullYear(),
-    d.getMonth(),
-    d.getDate(),
-    d.getHours(),
-    d.getMinutes(), 
-  ).toISOString().slice(0, 19).replace('T', ' ')
-}
+// function tosqld2(inputDate){
+//   const d = new Date(inputDate)
+//   return new Date(
+//     d.getFullYear(),
+//     d.getMonth(),
+//     d.getDate(),
+//     d.getHours(),
+//     d.getMinutes(), 
+//   ).toISOString().slice(0, 19).replace('T', ' ')
+// }
 
 function getMonday(d) {
   d = new Date(d);
@@ -37,44 +38,70 @@ const transformDate =(date)=>{
  }
 class ConferenceController {
   
+    // async updateConference(req, res){
+    //   try{
+    //   const {confid}= req.params
+    //   const {dataEnd,hallId, dataBeg} = req.body
 
+    //   const token = req.headers.authorization.split(' ')[1];
+    //   const{role, id:usid} = jwt.verify(token, secretKey)
 
-
+    //  await Conferense.findOne({where: {id: confid}, raw: true})
+    //  .then(conf =>{
+    //     if(conf.userId !=usid && role==="USER"){
+    //       throw new Error('baz', 'невозможно изменить запись другого пользователя!');
+    //     }
+    //     return Conferense.findOne({where: {dataBeg : {[Op.between] : [dataBeg , dataEnd ]}, 
+    //       hallId:hallId }, raw: true});
+    //  })
+    //  .then(candidate =>{
+    //     if(candidate){
+    //       return false
+    //     }
+    //     return Conferense.update({dataEnd, hallId, dataBeg},{where: {id:confid}, raw: true})
+    //   })
+    //   .then(resp=>{
+    //     if(resp){return res.json({message: 'updated succesfuly'});}
+    //     return res.status(400).json({message: "На это время зал занят"});
+    //   })
+    //   .catch(e=>{
+    //     res.status(400).json({message: e.message})
+    //   }
+    //   );
+    //   }catch(e){}
+    // }
 
     async updateConference(req, res){
-      try{
-      const {confid}= req.params
-      const {dataEnd,hallId, dataBeg} = req.body
-
-      const token = req.headers.authorization.split(' ')[1];
-      const{role, id:usid} = jwt.verify(token, secretKey)
-
-     await Conferense.findOne({where: {id: confid}, raw: true})
-     .then(conf =>{
-        if(conf.userId !=usid && role==="USER"){
-          throw new Error('baz', 'невозможно изменить запись другого пользователя!');
-        }
-        return Conferense.findOne({where: {dataBeg : {[Op.between] : [dataBeg , dataEnd ]}, 
-          hallId:hallId }, raw: true});
-     })
-     .then(candidate =>{
-        if(candidate){
-          return false
-        }
-        return Conferense.update({dataEnd, hallId, dataBeg},{where: {id:confid}, raw: true})
-      })
-      .then(resp=>{
-        if(resp){return res.json({message: 'updated succesfuly'});}
-        return res.status(400).json({message: "На это время зал занят"});
-      })
-      .catch(e=>{
-        res.status(400).json({message: e.message})
-      }
-      );
-      }catch(e){}
+      const {dataEnd, userId, hallId, dataBeg} = req.body 
+      const {confid}= req.params  
+         await Conferense
+            .findOne({where: {
+                [Op.or]:[
+                  { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
+                  {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
+                ],
+                hallId: hallId },
+              raw: true}
+            )
+            .then( place =>{
+              console.log(place)
+              if(place){
+                throw new Error( "На это время зал занят")
+              }
+              else {
+                  Conferense.update({dataEnd,
+                  hallId,
+                  dataBeg},{where: {id:confid}, raw: true})
+                  .then(
+                    Edits.create({
+                      date:new Date(),
+                      userId: userId,
+                      ConferenseId: confid
+                      })
+                  ).then(res.json({message: "Успіх"}))
+              } 
+              }).catch(e=> { res.status(400).json({message: e.message}); console.log(e.message); })
     }
-
-  
     
 
     async addConference(req, res){

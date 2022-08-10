@@ -48,7 +48,8 @@ const EventWrapper = ({ event, children  }) => {
             :null}
     {children.props.children} 
     { modal ?<Portal><Msg onClose={()=>onModalToggle()}
-                          conf={event}/></Portal> :null}
+                          conf={event}
+                          userId={currUserId}/></Portal> :null}
     </div>  
   ); 
 
@@ -64,12 +65,12 @@ const Portal =(props)=>{
   return ReactDOM.createPortal(props.children, node);
 }
 
-const Msg = ({onClose, conf})=>{
+const Msg = ({onClose, conf, userId})=>{
   return(
     <div style={{'width':'500px', 'height':'auto', 'backgroundColor':'green', 'position':'absolute', 'top':'10%','left':'20%', 'overflow':'hidden'}}>
       
       <button onClick={onClose}>X</button>
-      <AddConfForm conf={conf}/>
+      <AddConfForm conf={conf} userId={userId}/>
     </div>
   )
 }

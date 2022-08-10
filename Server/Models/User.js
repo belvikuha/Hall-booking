@@ -2,6 +2,7 @@ import Sequelize from "sequelize";
 import sequelize from "../context.js"
 
 import Conference from "./Conference.js";
+import Edits from "./Edits.js";
 
 const User = sequelize.define("user", {
     id: {
@@ -28,6 +29,7 @@ const User = sequelize.define("user", {
     }
   });
   // 
-
-
+  Edits.belongsTo(User)
+  User.hasMany(Edits)
+  
 export default User

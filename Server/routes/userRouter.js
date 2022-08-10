@@ -11,11 +11,12 @@ const userRouter = new Router()
 
 userRouter.post('/addConf', ConferenceController.addConference)
 // userRouter.get('/conferences', ConferenceController.allConferences)
-userRouter.put('/conference/:confid',authMiddlewaree, ConferenceController.updateConference)
+userRouter.put('/update-conference/:confid',authMiddlewaree, ConferenceController.updateConference)
 
 userRouter.get('/myconf',authMiddlewaree, UserController.getmyconfs)
 
 userRouter.get('/allconf', ConferenceController.getAllConf)
+
 
 userRouter.get('/demo', ConferenceController.demo)
 
