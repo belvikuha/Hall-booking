@@ -1,9 +1,11 @@
 
-const LoginPage =()=>{
+import CalendarWrapper from "../calendar/Calendar"
+
+const MainPage =()=>{
     return(
         <>
-            
+            <CalendarWrapper/>
         </>
     )
 }
-export default LoginPage
+export default MainPage

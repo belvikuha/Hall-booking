@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
+import { useNavigate, Link } from "react-router-dom"
+
 import './addConfForm.scss'
 import ConfService from "../../services/ConfService"
 // import {useDispatch} from 'react-redux'
@@ -7,16 +9,21 @@ import ConfService from "../../services/ConfService"
 
 
 const AddConfForm =({userId, conf})=>{
-    const {addConf, getHallColors, updateConf} = ConfService()
+    const {addConf, getHallColors, updateConf, loading, error} = ConfService()
 
     const[colors, setColors] = useState([])
     const [date, setDate] = useState()
     const [start, setStart] = useState()
     const [end, setEnd] = useState()
     const [hall, setHall] = useState()
-    const[loading, setLoading] = useState(true)
+    // const[loading, setLoading] = useState(true)
     // const [hallList, setHallList] =useState()
     
+    const navigate = useNavigate()
+    const goBack = ()=> navigate(-1);
+    const gotoMain = ()=> navigate('/edit');
+
+    var root = document.querySelector(':root');
 
     useEffect(()=>{
         
@@ -31,8 +38,10 @@ const AddConfForm =({userId, conf})=>{
             setStart(timeStartStr)
             setEnd(timeEndStr)
             setHall(conf.title);
+
+            root.style.setProperty('--main-color',conf.color );
         }
-        getHallColors().then(res=>{setColors(res);setLoading(false);})
+        getHallColors().then(res=>{setColors(res);})
         // return () => {
         //     dispatch(validate())
         //  }
@@ -40,7 +49,7 @@ const AddConfForm =({userId, conf})=>{
 
 
    
-    var root = document.querySelector(':root');
+
     // .toLocaleString('uk-UA')
 
 
@@ -63,14 +72,17 @@ const AddConfForm =({userId, conf})=>{
         hallId:hall,
         dataBeg: date+" "+start+":00"
       })
+      .then(()=> {if(!error) goBack()})
     }
-    const onRedForm=(userId)=>{
-        updateConf(userId,{
+    const onRedForm=()=>{
+        updateConf({
+        id: conf.id,
         dataEnd:date+" "+end+":00",
         userId: userId,
         hallId:hall,
         dataBeg: date+" "+start+":00"
       })
+      .then(()=> {if(!error) gotoMain()})
     }
 
      function renderHallInputs(){
@@ -128,7 +140,7 @@ const AddConfForm =({userId, conf})=>{
                             onChange={(e)=>setEnd(e.target.value.toLocaleString())}/>
                     </div>   
                    {!conf ? <button  onClick={onSubmitForm}>Зарезервувати</button> :
-                     <button  onClick={()=>onRedForm(conf.id)}>Редагувати</button>
+                     <button  onClick={onRedForm}>Редагувати</button>
                     }
                 </form>
          }

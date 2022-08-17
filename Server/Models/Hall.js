@@ -23,4 +23,5 @@ Hall.hasMany(Conference)
 Conference.belongsTo(Hall);
 
 
+
 export default Hall

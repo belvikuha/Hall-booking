@@ -1,19 +1,20 @@
 const SET_USER = "SET_USER"
 const LOGOUT = "LOGOUT"
-const VALIDATE = "VALIDATE"
+const SET_LOADING = "SET_LOADING"
+
 
 
 const defaultState = {
     currentUser: {},
     isAuth: false,
-    isValid: false
+    loading: true
 }
 
 export default function userReducer(state = defaultState, action) {
     switch (action.type) {
         case SET_USER:
             console.log(action.payload);
-            console.log(state.isAuth);
+            console.log("autor:" + true);
             return {
                 ...state,
                 currentUser: action.payload,
@@ -27,12 +28,12 @@ export default function userReducer(state = defaultState, action) {
                 currentUser: {},
                 isAuth: false
             }
-
-        case VALIDATE:
-            return{
+        case SET_LOADING:
+            return {
                 ...state,
-                isValid: !state.isValid
+                loading: !state.loading
             }
+    
         
         default:
             return state
@@ -40,4 +41,4 @@ export default function userReducer(state = defaultState, action) {
 }
 export const setUser = user => ({type: SET_USER, payload: user})
 export const logout = () => ({type: LOGOUT})
-export const validate = () =>({type: VALIDATE})
+export const loading = () => ({type: SET_LOADING})

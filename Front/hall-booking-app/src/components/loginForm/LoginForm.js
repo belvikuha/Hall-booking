@@ -1,9 +1,9 @@
 import { useState } from "react";
 import {Helmet} from "react-helmet";
-import { Link } from "react-router-dom";
+
 
 import {useDispatch} from 'react-redux'
-
+import { useNavigate, Link } from "react-router-dom"
 import {login} from "../../actions/user"
 
 import "./fonts/font-awesome-4.7.0/css/font-awesome.min.css"
@@ -17,6 +17,13 @@ const LoginForm =()=>{
     const [userlogin, setUserLogin] = useState("")
     const [password, setPassword] = useState("");
 	const dispatch = useDispatch()
+
+	const navigate = useNavigate();
+    const gotoMain = ()=> navigate('/', {replace: true});
+
+	const onLogin =()=>{
+		dispatch(login(userlogin, password)).then((res)=>{if(res)gotoMain()})
+	}
 
     return(   
         <div className="limiter">
@@ -80,7 +87,7 @@ const LoginForm =()=>{
 
 					<div className="container-login100-form-btn">
 						<button className="login100-form-btn"
-								onClick={()=> {dispatch(login(userlogin, password)); console.log("pressed")}}>
+								onClick={onLogin}>
 							УВІЙТИ
 						</button>
 					</div>

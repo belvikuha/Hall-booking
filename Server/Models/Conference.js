@@ -34,7 +34,7 @@ User.hasMany(Conference)
 
 Conference.belongsTo(User)
 
-Edits.belongsTo(Conference)
+// Edits.belongsTo(Conference)
 Conference.hasMany(Edits)
 
 export default Conference

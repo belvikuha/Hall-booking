@@ -18,8 +18,4 @@ const Edits =sequelize.define("Edits", {
 });
 
 
-
-
-
-
 export default Edits

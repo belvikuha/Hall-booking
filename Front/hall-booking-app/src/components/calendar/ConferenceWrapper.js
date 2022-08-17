@@ -1,6 +1,7 @@
 import moment from "moment-mini";
 import { useSelector} from "react-redux";
 import {useState } from "react";
+import { Link } from "react-router-dom";
 import ReactDOM from 'react-dom';
 import './wrapper.css';
 import pencil from './pencil.png'
@@ -8,13 +9,14 @@ import pencil from './pencil.png'
 import AddConfForm from "../addConfForm/AddConfForm";
 
 
-const EventWrapper = ({ event, children  }) => {
+const EventWrapper = ({ event, children, demoToggle  }) => {
   const { title, className } = children.props;
   const [modal, setModal] = useState(false);
 
 
   const onModalToggle=()=>{
-    setModal(modal=> modal=!modal)
+    
+      setModal(modal=> modal=!modal)
   }
 
   const currUserId = useSelector(state => state.user.currentUser.id)
@@ -35,7 +37,7 @@ const EventWrapper = ({ event, children  }) => {
 
   const gridRowStart = (hourStart*2) + startPlus;
 
-
+console.log('wrapper RENDER')
   return (
     <div
       title={title}
@@ -44,10 +46,14 @@ const EventWrapper = ({ event, children  }) => {
        backgroundColor: `${event.color}`}}
       
     >
-    {event.userId === currUserId ? <img 
+    {event.userId === currUserId ?
+    // <Link to ="/edit">
+    <img 
             className = "pencil-icon" alt="red" src={pencil}
-            onClick={()=>{ onModalToggle()}}/>
-            :null}
+            onClick={onModalToggle}
+            />   :null}
+             {/* </Link> */}
+         
     {children.props.children} 
     { modal ?<Portal><Msg onClose={()=>onModalToggle()}
                           conf={event}

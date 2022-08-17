@@ -74,13 +74,15 @@ class ConferenceController {
     async updateConference(req, res){
       const {dataEnd, userId, hallId, dataBeg} = req.body 
       const {confid}= req.params  
+      const conferenceId = Number(confid);
          await Conferense
             .findOne({where: {
                 [Op.or]:[
                   { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
                   {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
                 ],
-                hallId: hallId },
+                hallId: hallId,
+                id:{[Op.ne]: conferenceId} },
               raw: true}
             )
             .then( place =>{
@@ -91,14 +93,15 @@ class ConferenceController {
               else {
                   Conferense.update({dataEnd,
                   hallId,
-                  dataBeg},{where: {id:confid}, raw: true})
-                  .then(
+                  dataBeg},{where: {id:conferenceId}, raw: true})
+                  .then(()=>{
+                    console.log(conferenceId);
                     Edits.create({
                       date:new Date(),
-                      userId: userId,
-                      ConferenseId: confid
-                      })
-                  ).then(res.json({message: "Успіх"}))
+                      ConferenceId: conferenceId,
+                      userId: userId
+                      },{raw: true})
+                    }).then(res.json({message: "Успіх"}))
               } 
               }).catch(e=> { res.status(400).json({message: e.message}); console.log(e.message); })
     }

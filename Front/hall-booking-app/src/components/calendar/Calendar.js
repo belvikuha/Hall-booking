@@ -7,6 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import EventWrapper from "./ConferenceWrapper.js";
 import ConfService from "../../services/ConfService.js";
 
+import "./calendar.css"
 
 moment.locale('uk');
 const localizer = momentLocalizer(moment)
@@ -38,13 +39,18 @@ const CalendarWrapper =() =>{
       (event) => window.alert(event.title),
       []
     )
- 
+
+    const demoT =()=>{
+      alert("Hey!")
+    }
+    
+    console.log("calendar RENdER")
     return(
         // <div>
         //     <p style={{'textAlign':'center'}}>Calendar  {currentDate}</p>
         //     <button onClick={changedate}> click</button>
         // </div>
-         <div style={{ height: 700 }}>
+         <div className="calendar-conteiner" style={{ height: 700 }}>
          <Calendar
           // eventPropGetter={eventRenderProps}
             components={{
@@ -52,7 +58,8 @@ const CalendarWrapper =() =>{
                 // event: Event
             }}
            localizer={localizer} 
-          //  onDoubleClickEvent={handleSelectEvent}
+          //  demoToggle={demoT}
+          //  onDoubleClickEvent={()=>demoT()}
            step={15}
            events={confs}
            defaultView='week'

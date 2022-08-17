@@ -1,8 +1,8 @@
 import axios from 'axios'
 import moment from 'moment'
 
-import {useDispatch} from 'react-redux'
-import { validate } from '../reducers/userReducer'
+import { useState } from 'react'
+
 
 const ConfService= ()=>{
 
@@ -15,8 +15,10 @@ const ConfService= ()=>{
 //                alert(e.response.data.message)
 //            }
 //    }
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(false);
 
-const dispatch = useDispatch()
+
 async function getAllConfs(){
     const conferenses= axios.get('http://localhost:8000/user/allconf',
                 {headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}})
@@ -83,6 +85,7 @@ async function getAllConfs(){
     async function addConf(conf){
         const {dataEnd,userId,hallId,dataBeg} = conf;
         try {
+            setLoading(true)
              await axios.post('http://localhost:8000/user/addConf',
                     {   dataEnd,
                         userId,
@@ -92,12 +95,19 @@ async function getAllConfs(){
                 {headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}})
                 .then(res=>{
                     // console.log(res)
-                    if(res.status===400){ throw new Error(res.data.message)}
+                    if(res.status!==200){ throw new Error(res.data.message); }
                     console.log("успех")
-                    dispatch(validate())
+                   
+
                 },
-                error=>alert(error.response.data.message)
-                ).catch(e=>alert(e.message))
+                error=>{alert(error.response.data.message)
+                setLoading(false)
+                setError(true)
+                }
+                ).catch(e=>{alert(e.message); 
+                    setLoading(false)
+                    setError(true)})
+
            
         } catch (e) {
             alert(e)
@@ -105,22 +115,26 @@ async function getAllConfs(){
     }
     
     async function getHallColors(){
-       
+       setLoading(true);
         try {
            var colors =  await axios.get('http://localhost:8000/system/hall-colors')
           var mass = [];
           colors.data.map(c=>{mass.push(c)})
+          setLoading(false)
           return mass;
         } catch (error) {
             alert(error);
+            setError(true)
         }
     }
     // update-conference/:confid
-    async function updateConf(confid, conf){
+    async function updateConf(conf){
+        setLoading(true)
         try {
-            const {dataEnd,userId,hallId,dataBeg} = conf;
-            await axios.put(`http://localhost:8000/user/update-conference/${confid}`, 
-            {   dataEnd,
+            const {id, dataEnd,userId,hallId,dataBeg} = conf;
+            await axios.put(`http://localhost:8000/user/update-conference/${id}`, 
+            {   
+                dataEnd,
                 userId,
                 hallId,
                 dataBeg
@@ -128,17 +142,19 @@ async function getAllConfs(){
             {headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}})
             .then(res=>{
                  if(res.status!==200){ throw new Error(res.data.message)}
-                console.log("успех")
+                // console.log("успех")
+                setLoading(false)
             },
-            error=>alert(error.response.data.message)
-            ).catch(e=>alert(e.message))
+            error=>{alert(error.response.data.message);setLoading(false);setError(true)}
+            ).catch(e=>{alert(e.message);setLoading(false);setError(true)})
         } catch (error) {
             alert(error);
+            setLoading(false);setError(true)
         }
     }
 
 
-    return{addConf, transformDate, getAllConfs, getHallColors, updateConf}
+    return{loading, error, addConf, transformDate, getAllConfs, getHallColors, updateConf}
 }
 
 export default ConfService
