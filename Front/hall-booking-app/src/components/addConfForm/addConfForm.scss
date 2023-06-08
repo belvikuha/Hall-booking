@@ -4,7 +4,7 @@
 
 
 .inputGroup {
-    background-color: #fff;
+  background-color:#d1d7dc74;
     display: block;
     margin: 10px 0;
     position: relative;
@@ -72,6 +72,7 @@
     }
 
     input {
+      background-color:#d1d7dc74;
       width: 32px;
       height: 32px;
       order: 1;
@@ -91,31 +92,49 @@
 //   font-weight: 600;
 // }
 .form{
-  background-color: #D1D7DC;
-  padding: 10px 16px;
+  background-color: #ffffff;
+  padding: 10px 2em;
   max-width: 550px;
   min-height: 590px;
   margin: 50px auto;
   
   line-height: 36px;
+
+  // transform: translate(-50%, -50%);
+  border: 6px solid #3a3a383d;
+  border-top: 1.9em solid #3a3a383d;
+  border-radius: 15px 15px 1px 1px;
+  box-sizing: content-box;
   h2{
     // margin: 20px;
     font-size: 17px;
     font-weight: 100;
+  
   }
   button{
     font-size: 18px;
-    margin: 20px auto;
-    display: block;
-    background-color:#fff;
-    padding: 15px 25px;
-    border-radius: 20px;
-    border: 1px solid #23272b;
-      &:hover{
-      border: 2px solid #e0cb3e;
-      color:#524806
-      // background-color:#80808011
-    }
+    margin: 20px auto;  
+    margin-top: 3em;  
+    background-color:#57b846;
+    display: block;  
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+     padding: 15px 25px;
+     letter-spacing: 0.1em;
+    //
+    // // background-color:#4a4a4a;
+  
+    // border-radius: 50px;
+    // color: #fff;
+    // border: 1px solid #23272b;
+    //   &:hover{
+    //   border: 2px solid #e0cb3e;
+    //   color:#524806
+    //   // background-color:#80808011
+    // }
+    // font-family: Poppins-Regular;
+    outline: none !important;
+	border: none;
+	// background: transparent;
   }
 }
 body {
@@ -146,12 +165,28 @@ code {
 .datatime{
   display: inline-block;
   padding: 10px;
-  
-  input{
+  position: relative;
+  input, select{
+    // background-color:#d1d7dc74;
     width: 200px;
     height: 50px;
-    border-radius: 20px;
+    // border-radius: 20px;
+    border:0;
+    border-bottom: 1px solid rgba(43, 44, 44, 0.43);
     padding: 0 10px;
-    font-size: 14px;
+    font-size: 20px;
+    &.error{
+      border:1px solid rgb(143, 47, 47);
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.43);
+    }
   }
+  select{
+    width: 5em;
+   
+  }
+}
+.input_error{
+  font-size: 0.9em;
+  color: rgb(143, 47, 47);
+  position: absolute;
 }

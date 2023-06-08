@@ -16,25 +16,18 @@ const Conference =sequelize.define("Conference", {
         type: Sequelize.DATE,
         allowNull: true
     },
-    // userId:{
-    //     type: Sequelize.INTEGER,
-    //     allowNull: true
-    // },
-    // hallId:{
-    //     type: Sequelize.INTEGER,
-    //     allowNull: true
-    // },
     dataBeg:{
         type: Sequelize.DATE,
+        allowNull: true
+    },
+    type:{
+        type: Sequelize.STRING,
         allowNull: true
     }
 });
 
 User.hasMany(Conference)
-
 Conference.belongsTo(User)
-
-// Edits.belongsTo(Conference)
 Conference.hasMany(Edits)
 
 export default Conference

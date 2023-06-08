@@ -1,12 +1,11 @@
 import Conferense from "../Models/Conference.js"
 import Hall from "../Models/Hall.js";
 import Edits from "../Models/Edits.js";
-import {validationResult} from 'express-validator'
+import User from "../Models/User.js";
 import {Op} from "sequelize";
+import { LectureConferenceFactory } from "../Factory/LectureConference.js";
+import { SessionConferenceFactory } from "../Factory/SessionConference.js";
 
-
-import jwt from 'jsonwebtoken'
-import {secretKey} from '../config.js'
 
 // function tosqld2(inputDate){
 //   const d = new Date(inputDate)
@@ -26,126 +25,135 @@ function getMonday(d) {
   return new Date(d.setDate(diff));
 }
 
-const transformDate =(date)=>{
-  var init = new Date(date)
-  var hour = init.getHours();
-  // console.log(hour);
-  // console.log(init.getTimezoneOffset()/60)
-  // init.setHours(init.getHours() + (init.getTimezoneOffset()/60))
-  // return init
-  return init
-  .setMinutes((init.getMinutes()) + (init.getTimezoneOffset()))      
- }
+
 class ConferenceController {
   
-    // async updateConference(req, res){
-    //   try{
-    //   const {confid}= req.params
-    //   const {dataEnd,hallId, dataBeg} = req.body
-
-    //   const token = req.headers.authorization.split(' ')[1];
-    //   const{role, id:usid} = jwt.verify(token, secretKey)
-
-    //  await Conferense.findOne({where: {id: confid}, raw: true})
-    //  .then(conf =>{
-    //     if(conf.userId !=usid && role==="USER"){
-    //       throw new Error('baz', 'невозможно изменить запись другого пользователя!');
-    //     }
-    //     return Conferense.findOne({where: {dataBeg : {[Op.between] : [dataBeg , dataEnd ]}, 
-    //       hallId:hallId }, raw: true});
-    //  })
-    //  .then(candidate =>{
-    //     if(candidate){
-    //       return false
-    //     }
-    //     return Conferense.update({dataEnd, hallId, dataBeg},{where: {id:confid}, raw: true})
-    //   })
-    //   .then(resp=>{
-    //     if(resp){return res.json({message: 'updated succesfuly'});}
-    //     return res.status(400).json({message: "На это время зал занят"});
-    //   })
-    //   .catch(e=>{
-    //     res.status(400).json({message: e.message})
-    //   }
-    //   );
-    //   }catch(e){}
-    // }
-
     async updateConference(req, res){
       const {dataEnd, userId, hallId, dataBeg} = req.body 
       const {confid}= req.params  
       const conferenceId = Number(confid);
-         await Conferense
-            .findOne({where: {
-                [Op.or]:[
-                  { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
-                  {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
-                ],
-                hallId: hallId,
-                id:{[Op.ne]: conferenceId} },
-              raw: true}
-            )
-            .then( place =>{
-              console.log(place)
-              if(place){
-                throw new Error( "На это время зал занят")
-              }
-              else {
-                  Conferense.update({dataEnd,
-                  hallId,
-                  dataBeg},{where: {id:conferenceId}, raw: true})
-                  .then(()=>{
-                    console.log(conferenceId);
-                    Edits.create({
-                      date:new Date(),
-                      ConferenceId: conferenceId,
-                      userId: userId
-                      },{raw: true})
-                    }).then(res.json({message: "Успіх"}))
-              } 
-              }).catch(e=> { res.status(400).json({message: e.message}); console.log(e.message); })
-    }
-    
 
-    async addConference(req, res){
-        // try{
-            // const errors = validationResult(req)
-            // if(!errors.isEmpty()){
-            //     return res.status(400).json({message: "Ошибка заполнения формы", errors})
-            // } 
-          const {dataEnd, userId, hallId, dataBeg} = req.body 
-          console.log(dataBeg);  
-          console.log(dataEnd);  
-         await Conferense
-            .findOne({where: {[Op.or]:[
-              { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
-              {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
-              ],
-              hallId: hallId },
-              raw: true})
-            .then( place =>{
-              console.log(place)
-              if(place){
-                // res.status(400).json({message: "На это время зал занят"})
-                // // res.status(401)
-                // return 
-                throw new Error( "На это время зал занят")
-              }
-              else {
-                  Conferense.create({dataEnd,
-                  userId,
-                  hallId,
-                  dataBeg}).then(res.json({message: "Успіх"}))
-              } 
-              }).catch(e=> { res.status(400).json({message: e.message}); console.log(e.message); })
-            
-     
-        // }
-        // catch(e){
-        //     console.log(e);
-        // }
+      try{
+      var place = await Conferense.findOne({where: {
+          [Op.or]:[
+            { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
+            {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
+          ],
+          hallId: hallId,
+          id:{[Op.ne]: conferenceId} },
+        raw: true}
+      )
+
+        if(place){
+          throw new Error( "На это время зал занят")
+        }
+        else {
+          await Conferense.update({ dataEnd, hallId, dataBeg }, { where: { id: conferenceId }, raw: true });
         
+          await Edits.create({
+            date: new Date(),
+            ConferenceId: conferenceId,
+            userId: userId
+          }, { raw: true });
+        
+          const newConf = await Conferense.findOne({
+            where: { id: conferenceId },
+            attributes: ['id', 'dataBeg', 'dataEnd'],
+            include: [
+              {
+                model: Hall,
+                required: true
+              },
+              {
+                model: User,
+                attributes: ['id', 'userName'],
+                required: true,
+                right: true
+              }
+            ]
+          });
+        
+          res.json({ conference: newConf, message: "Успіх" });
+        }
+        }
+        catch(e){
+          res.status(400).json({ message: e.message });
+          console.log(e.message);
+        
+        }
+    }
+
+    
+    async addConference(req, res){
+      const {dataEnd, userId, hallId, dataBeg, type} = req.body 
+
+      try{
+        var place = await Conferense
+        .findOne({where: {[Op.or]:[
+          { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
+          {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
+          ],
+          hallId: hallId },
+          raw: true})
+        if(place){
+          throw new Error( "На это время зал занят")
+        }
+        else {
+            var factory = operateType(req.body)
+            var conference = factory.factoryMethod(dataEnd, userId, hallId, dataBeg)
+            var newConf = await Conferense.create(conference)
+            const newConfObj = await Conferense.findOne({
+              where: { id: newConf.id },
+              attributes: ['id', 'dataBeg', 'dataEnd'],
+              include: [
+                {
+                  model: Hall,
+                  required: true
+                },
+                {
+                  model: User,
+                  attributes: ['id', 'userName'],
+                  required: true,
+                  right: true
+                }
+              ]
+            });
+            res.json({newConf:newConfObj, message: conference.message()})
+        }   
+
       }
+      catch(e){
+        res.status(400).json({message: e.message}); console.log(e.message);
+      }
+      
+
+    }
+
+    // async addConference(req, res){
+    //   const {dataEnd, userId, hallId, dataBeg, type} = req.body 
+
+
+    //   await Conferense
+    //     .findOne({where: {[Op.or]:[
+    //       { dataBeg : {[Op.between] : [(dataBeg) , (dataEnd) ]}},
+    //       {dataEnd : {[Op.between] : [(dataBeg) , (dataEnd) ]}}
+    //       ],
+    //       hallId: hallId },
+    //       raw: true})
+    //     .then( place =>{
+    //       console.log(place)
+    //       if(place){
+    //         throw new Error( "На это время зал занят")
+    //       }
+    //       else {
+    //           var factory = operateType(req.body)
+    //           var conference = factory.factoryMethod(dataEnd, userId, hallId, dataBeg)
+             
+    //           Conferense.create(conference).then(res.json({message: conference.message()}))
+    //       } 
+    //       }).catch(e=> { res.status(400).json({message: e.message}); console.log(e.message); })
+
+    //   }
 
       
 
@@ -157,11 +165,22 @@ class ConferenceController {
             const confs= await Conferense.findAll({
               // where: {dataBeg:{ [Op.gt]:d}}, //Op.gt/lt
               // limit: 7,
-              include: {
-                model: Hall,
-                required: true
-              }
-            });
+              attributes:['id', 'dataBeg', 'dataEnd'],
+              include: [
+                {
+                  model: Hall,
+                  required: true
+                },
+                {
+                  model: User,
+                  attributes:['id', 'userName'],
+                  required: true,
+                  right: true
+                }
+            ]
+            }
+            
+            );
             return res.json(confs)
         } catch (error) {
           console.log(error)
@@ -185,32 +204,38 @@ class ConferenceController {
 
     async getHallColors(req, res){
       try {
-         await Hall.findAll({attributes: ['color']})
+         await Hall.findAll({attributes: ['color', 'id']})
          .then(result => {
-          var mass =[];
-          result.map((r)=> {mass.push(r.color) })
-          res.json(mass)
-        })
-
-        
-        // return res.send(colors)
+          res.json(result)
+        })  
       } catch (error) {
         return res.status(400).json({message: 'ups!'});
       }
     }
 
-  
-
-
-
-    async delete(req, res){
+    async deleteConference(req, res){
       try {
           const {id}= req.params
           if(!id){
               return res.status(400).json({message: 'Id not match'})
           }
           await Conferense.destroy({ where: {id: id}})
-          return res.json({message: 'deleted'});
+          var confs = await Conferense.findAll({
+            attributes:['id', 'dataBeg', 'dataEnd'],
+            include: [
+              {
+                model: Hall,
+                required: true
+              },
+              {
+                model: User,
+                attributes:['id', 'userName'],
+                required: true,
+                right: true
+              }
+          ]
+          });
+          return res.json({conferences: confs, message: 'deleted'});
       } catch (error) {
           return res.status(400).json({message: error})
       }
@@ -219,17 +244,21 @@ class ConferenceController {
     async demo(req, res){   
         const startedDate = new Date("2022-05-10 00:00:00");
         const endDate = new Date("2022-07-10 00:00:00");
-
-        // const candidate = await Conferense.findAll({where: {dataBeg:{ from: {
-        //     $between: [startedDate, endDate]
-        //     }}}});
         const candidate = await Conferense.findAll({where: {dataBeg : {[Op.between] : [startedDate , endDate ]}}});
         return res.json(candidate);
-    }
-
-
-    
+    }  
   
+}
+
+
+const operateType = (conference)=>{
+  console.log(conference)
+      switch (conference.type){
+        case "LECTURE":
+          return new LectureConferenceFactory({...conference})
+        case "SSESION":
+          return new SessionConferenceFactory({...conference})
+      }
 }
 
 export default new ConferenceController()

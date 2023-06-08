@@ -11,7 +11,51 @@
   }
 
 .pencil-icon{
-  width: 20px;
+  display: flex;
   text-align: right;
+  position: absolute;
+  bottom:0;
+  right: 0;
+}
+.pencil-icon img{
+  width: 20px;
+}
+.hall_number{
+  background:white;
+  padding: 0 0.5em;
+  border-radius: 50%;
+  color: black;
+}
+.time{}
+.block_title{
+  display: flex;
+  align-items: flex-start;
+  gap: 0.2em
+}
 
+.close_btn{
+  background:white;
+  padding: 0.4em 0.6em;
+  border-radius: 50%;
+  color: black;
+  position: absolute;
+  top: 3em;
+  right: 0.5em;
+  border:1px solid rgba(0, 0, 0, 0.622)
+}
+.portal{
+  position:fixed; 
+  top:0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items:center;
+  background-color:#272626a7; 
+}
+.portal__container{
+  margin: 0;
+  padding: 0;
+  overflow:hidden;
+  position: relative;
 }

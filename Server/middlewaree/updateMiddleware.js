@@ -18,9 +18,6 @@ export default function (roles){
             if(role === "USER" && userId != id){
                 
             }
-
-
-
                     if(roles.includes(role)){
                         hasRole = true
                     }

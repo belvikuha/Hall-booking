@@ -1,12 +1,16 @@
 import moment from "moment-mini";
-import { useSelector} from "react-redux";
-import {useState } from "react";
+import { useDispatch, useSelector} from "react-redux";
+import {useCallback,useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ReactDOM from 'react-dom';
 import './wrapper.css';
 import pencil from './pencil.png'
+import bin from './bin.png'
 
 import AddConfForm from "../addConfForm/AddConfForm";
+import { getCurrentUser } from "../../selectors/userSelectors";
+import useConfService from "../../services/ConfService";
+
 
 
 const EventWrapper = ({ event, children, demoToggle  }) => {
@@ -14,50 +18,83 @@ const EventWrapper = ({ event, children, demoToggle  }) => {
   const [modal, setModal] = useState(false);
 
 
-  const onModalToggle=()=>{
-    
-      setModal(modal=> modal=!modal)
-  }
+  const onModalToggle=useCallback(()=>{
+    setModal(modal=> modal=!modal)
+  },[])
 
-  const currUserId = useSelector(state => state.user.currentUser.id)
+  const currUser = useSelector(getCurrentUser);
+
+  const {deleteConf} = useConfService()
 
   // const customClass = `${className} rbc-event--${event.color}`;
-  const hourStart = moment(event.start).hour();
-  const minuteStart = moment(event.start).minute();
-  const hourStop = moment(event.end).hour();
-  const minuteStop = moment(event.end).minute();
   
-  const startPlus = minuteStart>=30 ? 2 : 1;
-  var gridRowPlus = 0;
-  if(minuteStart>=30 && minuteStop<30)gridRowPlus = -1
-  if(minuteStop>=30 && minuteStart<30 )gridRowPlus = 1
 
+  const gridRow = useMemo(()=>{
+    const hourStart = moment(event.start).hour();
+    const minuteStart = moment(event.start).minute();
+    const hourStop = moment(event.end).hour();
+    const minuteStop = moment(event.end).minute();
+    
+    const startPlus = minuteStart>=30 ? 2 : 1;
+    var gridRowPlus = 0;
+    if(minuteStart>=30 && minuteStop<30)gridRowPlus = -1
+    if(minuteStop>=30 && minuteStart<30 )gridRowPlus = 1
+  
+  
+    const diff= hourStop - hourStart;
+    const gridRowStart = (hourStart*2) + startPlus;
+    return`${gridRowStart-16} / span ${ (diff* 2)+ gridRowPlus }`
+  },[event])
 
-  const diff= hourStop - hourStart;
+// console.log('wrapper RENDER')
+// console.log(currUserId)
+  const dispatch = useDispatch()
 
-  const gridRowStart = (hourStart*2) + startPlus;
+  const onDelete = useCallback(()=>{
+    if (window.confirm("Do you really want to delete?")) {
+      dispatch(deleteConf(event.id))
+    }
+  },[])
 
-console.log('wrapper RENDER')
   return (
     <div
       title={title}
       className={className}
-      style={{ gridRow: `${gridRowStart} / span ${ (diff* 2)+ gridRowPlus}`, 
-       backgroundColor: `${event.color}`}}
+      style={{
+       gridRow: gridRow, 
+       backgroundColor: `${event.color}`,
+        position:'relative'
+      }}
       
     >
-    {event.userId === currUserId ?
-    // <Link to ="/edit">
-    <img 
-            className = "pencil-icon" alt="red" src={pencil}
-            onClick={onModalToggle}
-            />   :null}
-             {/* </Link> */}
-         
-    {children.props.children} 
-    { modal ?<Portal><Msg onClose={()=>onModalToggle()}
-                          conf={event}
-                          userId={currUserId}/></Portal> :null}
+   
+   
+    {event.userId === currUser.id ?
+      <div  className = "pencil-icon">
+        <img 
+          alt="update" src={pencil}
+          onClick={onModalToggle}
+        />   
+        <img 
+          alt="delete" src={bin}
+          onClick={onDelete}
+        />
+      </div> 
+      :null}
+      <div className="block_title">
+        <div className="hall_number">{event.title}</div>
+        <div className="time">{event.userName}<br/>
+        {event.start.getHours()+':'+event.start.getMinutes().toString().padStart(2, '0')}-{event.end.getHours()+':'+event.end.getMinutes().toString().padStart(2, '0')}
+        </div>
+      </div>
+    {/* {children.props.children}  */}
+    { modal ?
+        <Portal>
+          <Msg onClose={()=>onModalToggle()}
+              conf={event}
+              userId={currUser.id}/>
+        </Portal> 
+    :null}
     </div>  
   ); 
 
@@ -69,16 +106,21 @@ console.log('wrapper RENDER')
 const Portal =(props)=>{
   const node = document.createElement('div');
   document.body.appendChild(node);
-
+  useEffect(() => {
+    return () => {
+      document.body.removeChild(node);
+    };
+  }, []);
   return ReactDOM.createPortal(props.children, node);
 }
 
 const Msg = ({onClose, conf, userId})=>{
   return(
-    <div style={{'width':'500px', 'height':'auto', 'backgroundColor':'green', 'position':'absolute', 'top':'10%','left':'20%', 'overflow':'hidden'}}>
-      
-      <button onClick={onClose}>X</button>
-      <AddConfForm conf={conf} userId={userId}/>
+    <div className="portal" style={{}}>
+      <div className="portal__container" style={{}}>
+        <button onClick={onClose} className="close_btn">X</button>
+        <AddConfForm conf={conf} userId={userId}/>
+      </div>
     </div>
   )
 }

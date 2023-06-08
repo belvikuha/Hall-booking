@@ -24,67 +24,67 @@ import  RequireAuth  from '../../hoc/RequireAuth';
 import { loading as setL } from '../../reducers/userReducer';
 
 import {UserActions} from "../../actions/user"
+import useConfService from '../../services/ConfService';
+
+import { getAuth, getLoading, getUserId,  } from '../../selectors/userSelectors';
+
+import { getUsers } from '../../actions/user';
+import Spinner from '../spiner/Spiner';
 
 function App() {
 
-  const isAuth = useSelector(state => state.user.isAuth)
-  const name = useSelector(state => state.user.currentUser.userName)
-  const id = useSelector(state => state.user.currentUser.id)
+  // const isAuth = useSelector(getAuth)
+  // const name = useSelector(state => state.user.currentUser.userName)
+  const id = useSelector(getUserId )
 
-  const loading = useSelector(state => state.user.loading)
+  // const loading = useSelector(getLoading)
 
   const dispatch = useDispatch()
 
   const{auth} = UserActions()
-  // const [loading, setLoading] =useState(true)
+  const {getAllConfs, fetchHallColors} = useConfService()
 
+
+  
 
   useEffect(() => {
-    console.log("useeffect")
-    
-      dispatch(auth())
-     
+    console.log('uef info')
+      dispatch(auth()).then(()=>{
+        dispatch(getAllConfs())
+        dispatch(fetchHallColors())
+      })
+
+  
   }, [])
 
-
-  // useEffect(() => {
-  //   console.log("useeffect on redux")
-  //     setLoading(false)
-  // }, [isAuth])
-
-  console.log("main render loading:"+ loading)
   return ( 
-    
-  
+
     <Router>
         <div className="app">
           
-              {!loading ?  
-                    <Routes>
-                        <Route path='/' element={<MainLoyout/>}>
-                          <Route path='/'  element={<RequireAuth>
-                            <MainPage/>
-                          </RequireAuth>
-                          }/> 
-                         <Route path='/edit'  element={ <Navigate to='/' replace/>
-                          }/> 
-                          <Route path="add-conference" element={
-                            <RequireAuth>
-                              <AddConfForm userId={id}/>
-                            </RequireAuth>
-                          }/>
-                          <Route path="login" element={<LoginPage/>}/>
-                          {/* <Route path="edit-rec" element={
-                            <RequireAuth>
-                                <AddConfForm userId={id}/>
-                              </RequireAuth>}/>  */}
-                          <Route path="*" element={<Page404/>}/>
-                        </Route>
-                    </Routes>  
-                  :  null} 
+              <Routes>
+                  <Route path='/' element={<MainLoyout/>}>
+                    <Route path='/'  element={<RequireAuth>
+                      <MainPage/>
+                    </RequireAuth>
+                    }/> 
+                    <Route path='/edit'  element={ <Navigate to='/' replace/>
+                    }/> 
+                    <Route path="add-conference" element={
+                      <RequireAuth>
+                        <AddConfForm userId={id}/>
+                      </RequireAuth>
+                    }/>
+                    <Route path="/login" element={<LoginPage/>}/>
+                    {/* <Route path="edit-rec" element={
+                      <RequireAuth>
+                          <AddConfForm userId={id}/>
+                        </RequireAuth>}/>  */}
+                    <Route path="*" element={<Page404/>}/>
+                  </Route>
+              </Routes>  
         </div>
     </Router>
-  
   );
 }
 

@@ -16,6 +16,7 @@ userRouter.put('/update-conference/:confid',authMiddlewaree, ConferenceControlle
 userRouter.get('/myconf',authMiddlewaree, UserController.getmyconfs)
 
 userRouter.get('/allconf', ConferenceController.getAllConf)
+userRouter.delete('/conference/:id', ConferenceController.deleteConference) 
 
 
 userRouter.get('/demo', ConferenceController.demo)

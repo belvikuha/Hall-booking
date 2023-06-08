@@ -10,20 +10,16 @@ import roleMiddleware from "../middlewaree/roleMiddleware.js"
 
 const adminRouter = new Router()
 
-// adminRouter.get('/user', UserController.getAll)
+
 adminRouter.post('/user',[
                         check('login', "Логин не может быть пустым").notEmpty(),
                         check('password', "Пароль не может быть пустым").notEmpty()
                         ],
                         UserController.createUser)
 adminRouter.post('/login', UserController.login)
-adminRouter.get('/users',roleMiddleware(['ADMIN']), UserController.getAllusers)
+// adminRouter.get('/users',roleMiddleware(['ADMIN']), UserController.getAllusers)
+adminRouter.get('/users', UserController.getAllusers)
 adminRouter.delete('/user/:id', UserController.deleteUser)
-
-
-// adminRouter.get('/auth',authMiddlewaree, UserController.auth)
-
-// adminRouter.get('/passwords',roleMiddleware(['ADMIN']), UserController.getPassw)
 
 
 export default adminRouter;
